@@ -1,66 +1,28 @@
 import { useDispatch } from 'react-redux';
 import Button from '../../ui/Button';
 import { decreaseItemQuantity, increaseItemQuantity } from './cartSlice';
-import { useCallback, useMemo } from 'react';
-
-// const debounce = function (fn, delay) {
-//   let timeoutId = null;
-//   return function (...args) {
-//     if (timeoutId) {
-//       clearTimeout();
-//     }
-//     timeoutId = setTimeout(() => {
-//       fn(...args);
-//     }, delay);
-//   };
-// };
+import { useCallback } from 'react';
+import debounce from 'lodash.debounce';
 
 export default function UpdateItemQuantity({ pizzaId, currentQuantity }) {
   const dispatch = useDispatch();
-  // 定义防抖处理函数
-  const handleDebouncedClick1 = useCallback(() => {
-    dispatch(decreaseItemQuantity(pizzaId));
-  }, [dispatch, pizzaId]);
+  const debouncedDecrease = useCallback(
+    debounce(() => dispatch(decreaseItemQuantity(pizzaId)), 300),
+    [], // will be created only once initially
+  );
 
-  // 使用防抖处理点击事件
-  const handleClickDebounced1 = useMemo(() => {
-    const debounce = (fn, delay) => {
-      let timeoutId;
-      return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          fn(...args);
-        }, delay);
-      };
-    };
-    return debounce(handleDebouncedClick1, 300); // 设置防抖时间间隔，单位是毫秒
-  }, [handleDebouncedClick1]);
-
-  const handleDebouncedClick2 = useCallback(() => {
-    dispatch(increaseItemQuantity(pizzaId));
-  }, [dispatch, pizzaId]);
-
-  // 使用防抖处理点击事件
-  const handleClickDebounced2 = useMemo(() => {
-    const debounce = (fn, delay) => {
-      let timeoutId;
-      return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          fn(...args);
-        }, delay);
-      };
-    };
-    return debounce(handleDebouncedClick2, 300); // 设置防抖时间间隔，单位是毫秒
-  }, [handleDebouncedClick2]);
+  const debouncedIncrease = useCallback(
+    debounce(() => dispatch(increaseItemQuantity(pizzaId)), 300),
+    [], // will be created only once initially
+  );
 
   return (
     <div className="flex items-center gap-2 md:gap-3">
-      <Button type="round" onClick={handleClickDebounced1}>
+      <Button type="round" onClick={debouncedDecrease}>
         -
       </Button>
       <span className="text-sm font-bold">{currentQuantity}</span>
-      <Button type="round" onClick={() => dispatch(handleClickDebounced2)}>
+      <Button type="round" onClick={debouncedIncrease}>
         +
       </Button>
     </div>
